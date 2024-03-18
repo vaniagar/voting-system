@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >= 0.7.0 <0.9.0;
+
+contract voting
+{
+    address public head;  //head can only see the votes
+    address[] public candidates;
+    mapping(address =>uint16) public votereceived;
+    address public winner;
+    uint public totalvotes;
+
+    constructor()
+    {
+        head=msg.sender; //who will supervise the voting
+    }
+
+    function register(address _candidate) public
+    {
+        require(msg.sender==head);
+        candidates.push(_candidate);
+    }
+    function Vote(address _candidate) public
+    {
+        require(Validate(_candidate));
+        votereceived[_candidate]=votereceived[_candidate]+1; //to inc the number of votes for a candidate
+
+    }
+    function Validate(address _candidate) public view returns(bool) //to check if candidate is registered
+    {
+        for(uint i=0;i<candidates.length;i++)
+        {
+            if(candidates[i]==_candidate)
+            {
+                return true;
+            }
+        }
+         return false;
+    }
+    function countVote(address _candidate) public view returns(uint)
+    {
+        require(Validate(_candidate));
+        uint count=votereceived[_candidate];
+        return count;
+
+    }
+    function result() public  
+    {
+        require(msg.sender==head);
+        for(uint i=0;i<candidates.length;i++)
+        {
+            if(votereceived[candidates[i]]> totalvotes)
+            {
+                totalvotes=votereceived[candidates[i]];
+                winner=candidates[i];
+            }
+        }
+        
+
+
+    }
+}
